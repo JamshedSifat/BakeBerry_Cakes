@@ -1,0 +1,122 @@
+{
+  "offers": [
+    {
+      "id": 1,
+      "title": "Morning Delight",
+      "description": "Get any pastry + coffee for only $8.99",
+      "discount": "30% OFF",
+      "type": "daily",
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&h=400&fit=crop",
+      "badge": "Best Deal",
+      "validUntil": "Today Only",
+      "icon": "Coffee",
+      "color": "from-orange-500 to-red-500",
+      "available": 65,
+      "isPopular": true
+    },
+    {
+      "id": 2,
+      "title": "Family Feast",
+      "description": "Order 2 cakes and get 1 free",
+      "discount": "Buy 2 Get 1 Free",
+      "type": "weekly",
+      "image": "https://images.unsplash.com/photo-1585478259715-7c10f84b9e3f?w=600&h=400&fit=crop",
+      "badge": "Popular",
+      "validUntil": "Ends in 3 days",
+      "icon": "Cake",
+      "color": "from-pink-500 to-rose-500",
+      "available": 80,
+      "isPopular": true
+    },
+    {
+      "id": 3,
+      "title": "Cookie Lover's Box",
+      "description": "12 premium cookies for the price of 10",
+      "discount": "Save 20%",
+      "type": "monthly",
+      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&h=400&fit=crop",
+      "badge": "Staff Pick",
+      "validUntil": "Limited Time",
+      "icon": "Cookie",
+      "color": "from-amber-500 to-yellow-500",
+      "available": 45,
+      "isPopular": false
+    },
+    {
+      "id": 4,
+      "title": "Weekend Special",
+      "description": "Free delivery on all orders over $25",
+      "discount": "Free Delivery",
+      "type": "daily",
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&h=400&fit=crop",
+      "badge": "Limited",
+      "validUntil": "This Weekend",
+      "icon": "ShoppingBag",
+      "color": "from-emerald-500 to-green-500",
+      "available": 100,
+      "isPopular": false
+    },
+    {
+      "id": 5,
+      "title": "Birthday Package",
+      "description": "Personalized cake + decorations + balloons",
+      "discount": "20% OFF",
+      "type": "monthly",
+      "image": "https://images.unsplash.com/photo-1585478259715-7c10f84b9e3f?w=600&h=400&fit=crop",
+      "badge": "Exclusive",
+      "validUntil": "All Month",
+      "icon": "Gift",
+      "color": "from-purple-500 to-indigo-500",
+      "available": 30,
+      "isPopular": true
+    },
+    {
+      "id": 6,
+      "title": "Student Discount",
+      "description": "15% off with valid student ID",
+      "discount": "15% OFF",
+      "type": "weekly",
+      "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&h=400&fit=crop",
+      "badge": "Student Offer",
+      "validUntil": "Always Active",
+      "icon": "Heart",
+      "color": "from-blue-500 to-cyan-500",
+      "available": 90,
+      "isPopular": false
+    },
+    {
+      "id": 7,
+      "title": "Afternoon Tea Set",
+      "description": "Tea + scones + sandwiches for two at $19.99",
+      "discount": "25% OFF",
+      "type": "daily",
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&h=400&fit=crop",
+      "badge": "New",
+      "validUntil": "Today Only",
+      "icon": "Coffee",
+      "color": "from-teal-500 to-emerald-500",
+      "available": 50,
+      "isPopular": false
+    },
+    {
+      "id": 8,
+      "title": "Bread Subscription",
+      "description": "Fresh bread delivered weekly - Save 30%",
+      "discount": "30% OFF",
+      "type": "monthly",
+      "image": "https://images.unsplash.com/photo-1585478259715-7c10f84b9e3f?w=600&h=400&fit=crop",
+      "badge": "Best Value",
+      "validUntil": "Limited Time",
+      "icon": "ShoppingBag",
+      "color": "from-rose-500 to-pink-500",
+      "available": 60,
+      "isPopular": true
+    }
+  ],
+  "tabs": [
+    { "id": "all", "label": "All Offers", "icon": "Sparkles" },
+    { "id": "daily", "label": "Daily Deals", "icon": "Timer" },
+    { "id": "weekly", "label": "Weekly Specials", "icon": "TrendingUp" },
+    { "id": "monthly", "label": "Monthly Offers", "icon": "Crown" }
+  ]
+}
