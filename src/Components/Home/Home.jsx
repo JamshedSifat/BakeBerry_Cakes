@@ -1,10 +1,11 @@
-// src/components/Home/Home.jsx
+
 import React from 'react';
 import Banner from '../Banner/Banner';
-import Menu from '../Menu/Menu';
+
 import SpecialOffers from '../SpecialOffers/SpecialOffers';
 import About from '../About/About';
 import Contact from '../Contact/Contact';
+import Menu from '../Menu/Menu';
 
 
 const Home = () => {
