@@ -1,4 +1,4 @@
-// src/Pages/ProductDetails.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft } from 'lucide-react';

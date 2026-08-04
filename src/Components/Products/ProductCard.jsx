@@ -1,4 +1,4 @@
-// src/Components/Products/ProductCard.jsx
+
 import React, { useState } from 'react';
 import { 
     Star, 
