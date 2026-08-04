@@ -1,12 +1,8 @@
-// src/components/Navbar/Navbar.jsx
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink, useNavigate, useLocation } from 'react-router';
 import { 
     Menu, 
     X, 
-    Search as SearchIcon, 
-    ShoppingCart, 
-    User, 
     Home, 
     Package, 
     Info, 
@@ -17,18 +13,18 @@ import {
     Heart,
     Gift
 } from 'lucide-react';
-import { useCart } from '../../hooks/useCart';
+import MobileSearchToggle from '../Shared/MobileSearchToggle';
+import Search from '../Shared/Search';
+import CartButton from '../Shared/Cart/CartButton';
+import ProfileButton from '../Shared/profile/ProfileButton';
+
 
 const Navbar = () => {
     const navigate = useNavigate();
-    const { cartCount } = useCart(); // Get cart count from hook
+    const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
     const [isScrolled, setIsScrolled] = useState(false);
 
-    // Handle scroll effect
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
@@ -37,55 +33,65 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Handle search
-    const handleSearch = (e) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-            setIsSearchOpen(false);
-            setSearchQuery('');
+    const scrollToSection = (sectionId) => {
+        if (location.pathname !== '/') {
+            navigate('/');
+            setTimeout(() => {
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    const navbarHeight = 80;
+                    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                    window.scrollTo({
+                        top: elementPosition - navbarHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        } else {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                const navbarHeight = 80;
+                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                window.scrollTo({
+                    top: elementPosition - navbarHeight,
+                    behavior: 'smooth'
+                });
+            }
         }
+        setIsOpen(false);
     };
 
-    // Handle cart click
-    const handleCartClick = () => {
-        navigate('/cart');
-        setIsProfileOpen(false);
+    const toggleMenu = () => {
+        setIsOpen(!isOpen);
     };
 
-    // Handle profile click
-    const handleProfileClick = () => {
-        setIsProfileOpen(!isProfileOpen);
-    };
-
-    // Handle logout
     const handleLogout = () => {
         console.log('Logging out...');
-        setIsProfileOpen(false);
         navigate('/login');
     };
 
-    // Handle mobile menu toggle
-    const toggleMenu = () => {
-        setIsOpen(!isOpen);
-        setIsSearchOpen(false);
-        setIsProfileOpen(false);
-    };
-
-    // Navigation links
     const navLinks = [
-        { to: '/', label: 'Home', icon: Home },
-        { to: '/products', label: 'Products', icon: Package },
-        { to: '/offers', label: 'Offers', icon: Gift },
-        { to: '/about', label: 'About', icon: Info },
-        { to: '/contact', label: 'Contact', icon: Phone },
+        { to: '/', label: 'Home', icon: Home, section: 'home' },
+        { to: '/#products', label: 'Products', icon: Package, section: 'products' },
+        { to: '/#offers', label: 'Offers', icon: Gift, section: 'offers' },
+        { to: '/#about', label: 'About', icon: Info, section: 'about' },
+        { to: '/#contact', label: 'Contact', icon: Phone, section: 'contact' },
     ];
 
     const mobileNavLinks = [
         ...navLinks,
-        { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { to: '/settings', label: 'Settings', icon: Settings },
+        { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, section: null },
+        { to: '/settings', label: 'Settings', icon: Settings, section: null },
     ];
+
+    const isLinkActive = (section) => {
+        if (location.pathname !== '/') return false;
+        const element = document.getElementById(section);
+        if (!element) return false;
+        const rect = element.getBoundingClientRect();
+        const offset = 100;
+        return rect.top <= offset && rect.bottom >= offset;
+    };
 
     return (
         <div>
@@ -120,6 +126,19 @@ const Navbar = () => {
                                 <ul tabIndex="-1" className="menu menu-sm dropdown-content bg-white/80 backdrop-blur-xl backdrop-saturate-200 rounded-2xl z-50 mt-3 w-56 p-2 shadow-2xl border border-white/40">
                                     {mobileNavLinks.map((link) => {
                                         const Icon = link.icon;
+                                        if (link.section) {
+                                            return (
+                                                <li key={link.to}>
+                                                    <button 
+                                                        onClick={() => scrollToSection(link.section)}
+                                                        className="w-full text-left hover:bg-red-600/20 hover:text-red-600 rounded-lg transition-all duration-300 flex items-center gap-2 px-4 py-2 text-gray-700"
+                                                    >
+                                                        <Icon className="w-4 h-4" />
+                                                        {link.label}
+                                                    </button>
+                                                </li>
+                                            );
+                                        }
                                         return (
                                             <li key={link.to}>
                                                 <NavLink 
@@ -129,6 +148,7 @@ const Navbar = () => {
                                                             isActive ? 'bg-red-600/20 text-red-600 font-semibold shadow-sm' : 'text-gray-700'
                                                         }`
                                                     }
+                                                    onClick={() => setIsOpen(false)}
                                                 >
                                                     <Icon className="w-4 h-4" />
                                                     {link.label}
@@ -160,6 +180,22 @@ const Navbar = () => {
                         <div className="hidden lg:flex items-center gap-1">
                             {navLinks.map((link) => {
                                 const Icon = link.icon;
+                                if (link.section) {
+                                    return (
+                                        <button
+                                            key={link.to}
+                                            onClick={() => scrollToSection(link.section)}
+                                            className={`font-medium px-3 py-2 rounded-xl transition-all duration-300 text-gray-700 flex items-center gap-2 hover:bg-red-600/10 hover:text-red-600 hover:backdrop-blur-sm ${
+                                                location.pathname === '/' && isLinkActive(link.section)
+                                                    ? 'bg-red-600/20 text-red-600 font-semibold shadow-sm backdrop-blur-sm border border-white/30'
+                                                    : ''
+                                            }`}
+                                        >
+                                            <Icon className="w-4 h-4" />
+                                            {link.label}
+                                        </button>
+                                    );
+                                }
                                 return (
                                     <NavLink 
                                         key={link.to} 
@@ -181,139 +217,23 @@ const Navbar = () => {
                         
                         {/* Right side - Search, Cart, Profile */}
                         <div className="flex items-center gap-1 sm:gap-2">
-                            {/* Search Component */}
+                            {/* Desktop Search */}
                             <div className="hidden md:block">
-                                <form onSubmit={handleSearch} className="relative">
-                                    <input 
-                                        type="text" 
-                                        placeholder="Search products..." 
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-32 lg:w-48 xl:w-64 px-4 py-2 pl-9 bg-white/20 backdrop-blur-md border-2 border-red-600/30 focus:border-red-600 text-gray-700 placeholder:text-gray-400/70 focus:outline-none transition-all duration-300 rounded-xl text-sm"
-                                    />
-                                    <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                </form>
+                                <Search variant="compact" />
                             </div>
 
                             {/* Mobile Search Toggle */}
-                            <button 
-                                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                                className="md:hidden btn btn-ghost btn-circle hover:bg-red-600/20 hover:scale-110 transition-all duration-300 bg-white/20 backdrop-blur-md border border-white/30"
-                            >
-                                <SearchIcon className="h-5 w-5 text-red-600" />
-                            </button>
+                            <MobileSearchToggle />
 
-                            {/* Cart Button with Live Count */}
-                            <button 
-                                onClick={handleCartClick}
-                                className="btn btn-ghost btn-circle hover:bg-red-600/20 hover:scale-110 transition-all duration-300 bg-white/20 backdrop-blur-md border border-white/30 relative"
-                            >
-                                <div className="indicator">
-                                    <ShoppingCart className="h-5 w-5 text-red-600" />
-                                    {cartCount > 0 && (
-                                        <span className="badge badge-xs bg-red-600 text-white border-none indicator-item shadow-lg animate-pulse">
-                                            {cartCount}
-                                        </span>
-                                    )}
-                                </div>
-                            </button>
+                            {/* Cart Button */}
+                            <CartButton />
 
                             {/* Profile Button */}
-                            <div className="relative">
-                                <button 
-                                    onClick={handleProfileClick}
-                                    className="hidden sm:flex btn btn-ghost btn-circle hover:bg-red-600/20 hover:scale-110 transition-all duration-300 bg-white/20 backdrop-blur-md border border-white/30"
-                                >
-                                    <User className="h-5 w-5 text-red-600" />
-                                </button>
-
-                                {/* Profile Dropdown */}
-                                {isProfileOpen && (
-                                    <div className="absolute right-0 mt-2 w-64 bg-white/90 backdrop-blur-2xl rounded-2xl shadow-3xl border border-white/40 p-2 z-50">
-                                        <div className="p-3 border-b border-gray-200/50">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-600 to-pink-600 flex items-center justify-center text-white font-bold text-lg">
-                                                    JD
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-medium text-gray-800">John Doe</h4>
-                                                    <p className="text-xs text-gray-400">john@example.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="py-2">
-                                            <NavLink 
-                                                to="/profile" 
-                                                className="flex items-center gap-3 px-3 py-2 hover:bg-red-600/10 rounded-xl transition-colors text-gray-700 hover:text-red-600"
-                                                onClick={() => setIsProfileOpen(false)}
-                                            >
-                                                <User className="w-4 h-4" />
-                                                My Profile
-                                            </NavLink>
-                                            <NavLink 
-                                                to="/orders" 
-                                                className="flex items-center gap-3 px-3 py-2 hover:bg-red-600/10 rounded-xl transition-colors text-gray-700 hover:text-red-600"
-                                                onClick={() => setIsProfileOpen(false)}
-                                            >
-                                                <Package className="w-4 h-4" />
-                                                My Orders
-                                            </NavLink>
-                                            <NavLink 
-                                                to="/wishlist" 
-                                                className="flex items-center gap-3 px-3 py-2 hover:bg-red-600/10 rounded-xl transition-colors text-gray-700 hover:text-red-600"
-                                                onClick={() => setIsProfileOpen(false)}
-                                            >
-                                                <Heart className="w-4 h-4" />
-                                                Wishlist
-                                            </NavLink>
-                                            <NavLink 
-                                                to="/settings" 
-                                                className="flex items-center gap-3 px-3 py-2 hover:bg-red-600/10 rounded-xl transition-colors text-gray-700 hover:text-red-600"
-                                                onClick={() => setIsProfileOpen(false)}
-                                            >
-                                                <Settings className="w-4 h-4" />
-                                                Settings
-                                            </NavLink>
-                                        </div>
-                                        <div className="border-t border-gray-200/50 pt-2">
-                                            <button 
-                                                onClick={handleLogout}
-                                                className="flex items-center gap-3 px-3 py-2 w-full hover:bg-red-600/10 rounded-xl transition-colors text-red-600"
-                                            >
-                                                <LogOut className="w-4 h-4" />
-                                                Logout
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                            <ProfileButton />
                         </div>
                     </div>
                 </div>
             </nav>
-
-            {/* Mobile Search Bar */}
-            {isSearchOpen && (
-                <div className="md:hidden fixed top-16 left-0 right-0 z-40 bg-white/90 backdrop-blur-2xl p-4 shadow-2xl border-b border-white/40 animate-slide-down">
-                    <form onSubmit={handleSearch} className="relative">
-                        <input 
-                            type="text" 
-                            placeholder="Search for products..." 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full px-4 py-3 pl-10 bg-white/20 backdrop-blur-md border-2 border-red-600/30 focus:border-red-600 rounded-xl text-gray-700 placeholder:text-gray-400/70 focus:outline-none transition-all duration-300"
-                            autoFocus
-                        />
-                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <button 
-                            type="submit"
-                            className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-medium rounded-lg hover:shadow-lg transition-all duration-300"
-                        >
-                            Search
-                        </button>
-                    </form>
-                </div>
-            )}
 
             {/* Mobile Menu Overlay */}
             {isOpen && (
@@ -331,11 +251,27 @@ const Navbar = () => {
                     <ul className="space-y-1">
                         {mobileNavLinks.map((link) => {
                             const Icon = link.icon;
+                            if (link.section) {
+                                return (
+                                    <li key={link.to}>
+                                        <button 
+                                            onClick={() => {
+                                                scrollToSection(link.section);
+                                                setIsOpen(false);
+                                            }}
+                                            className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-gray-700 hover:bg-red-600/10 hover:text-red-600"
+                                        >
+                                            <Icon className="w-5 h-5" />
+                                            {link.label}
+                                        </button>
+                                    </li>
+                                );
+                            }
                             return (
                                 <li key={link.to}>
                                     <NavLink 
                                         to={link.to} 
-                                        onClick={toggleMenu}
+                                        onClick={() => setIsOpen(false)}
                                         className={({ isActive }) => 
                                             `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                                                 isActive 
@@ -355,7 +291,7 @@ const Navbar = () => {
                             <button 
                                 onClick={() => {
                                     handleLogout();
-                                    toggleMenu();
+                                    setIsOpen(false);
                                 }}
                                 className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-red-600 hover:bg-red-600/10 w-full"
                             >
@@ -366,22 +302,6 @@ const Navbar = () => {
                     </ul>
                 </div>
             </div>
-
-            <style>{`
-                @keyframes slide-down {
-                    from {
-                        opacity: 0;
-                        transform: translateY(-10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                .animate-slide-down {
-                    animation: slide-down 0.3s ease-out;
-                }
-            `}</style>
         </div>
     );
 };

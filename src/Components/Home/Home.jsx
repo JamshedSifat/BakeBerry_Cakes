@@ -1,14 +1,34 @@
+// src/components/Home/Home.jsx
 import React from 'react';
 import Banner from '../Banner/Banner';
-import Menu from '../Menu/menu';
+import Menu from '../Menu/Menu';
 import SpecialOffers from '../SpecialOffers/SpecialOffers';
+import About from '../About/About';
+import Contact from '../Contact/Contact';
+
 
 const Home = () => {
     return (
         <div>
-            <Banner></Banner>
-            <SpecialOffers></SpecialOffers>
-            <Menu></Menu>
+            <section id="home">
+                <Banner />
+            </section>
+            
+            <section id="products">
+                <Menu />
+            </section>
+            
+            <section id="offers">
+                <SpecialOffers />
+            </section>
+
+            <section id="about">
+                <About />
+            </section> 
+            
+            <section id="contact">
+                <Contact />
+            </section> 
         </div>
     );
 };
