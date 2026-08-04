@@ -11,19 +11,50 @@ import {
     Settings, 
     LogOut,
     Heart,
-    Gift
+    Gift,
+    ShoppingCart,
+    Trash2,
+    Plus,
+    Minus
 } from 'lucide-react';
 import MobileSearchToggle from '../Shared/MobileSearchToggle';
 import Search from '../Shared/Search';
-import CartButton from '../Shared/Cart/CartButton';
 import ProfileButton from '../Shared/profile/ProfileButton';
 
+// Mock cart data - replace with your actual cart state management
+const useCart = () => {
+    const [cartItems, setCartItems] = useState([
+        { id: 1, name: 'Chocolate Cake', price: 25.99, quantity: 2, image: '/api/placeholder/50/50' },
+        { id: 2, name: 'Strawberry Tart', price: 18.50, quantity: 1, image: '/api/placeholder/50/50' },
+    ]);
+
+    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    const updateQuantity = (id, newQuantity) => {
+        if (newQuantity === 0) {
+            setCartItems(cartItems.filter(item => item.id !== id));
+        } else {
+            setCartItems(cartItems.map(item => 
+                item.id === id ? { ...item, quantity: newQuantity } : item
+            ));
+        }
+    };
+
+    const removeItem = (id) => {
+        setCartItems(cartItems.filter(item => item.id !== id));
+    };
+
+    return { cartItems, totalItems, totalPrice, updateQuantity, removeItem };
+};
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isCartOpen, setIsCartOpen] = useState(false);
+    const { cartItems, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -32,6 +63,17 @@ const Navbar = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Close cart when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (isCartOpen && !event.target.closest('.cart-container')) {
+                setIsCartOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isCartOpen]);
 
     const scrollToSection = (sectionId) => {
         if (location.pathname !== '/') {
@@ -63,6 +105,10 @@ const Navbar = () => {
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
+    };
+
+    const toggleCart = () => {
+        setIsCartOpen(!isCartOpen);
     };
 
     const handleLogout = () => {
@@ -225,8 +271,116 @@ const Navbar = () => {
                             {/* Mobile Search Toggle */}
                             <MobileSearchToggle />
 
-                            {/* Cart Button */}
-                            <CartButton />
+                            {/* Enhanced Cart Button with Dropdown */}
+                            <div className="cart-container relative">
+                                <button
+                                    onClick={toggleCart}
+                                    className="btn btn-ghost btn-circle relative hover:bg-red-600/20 hover:scale-105 transition-all duration-300 bg-white/20 backdrop-blur-md border border-white/30"
+                                >
+                                    <ShoppingCart className="h-5 w-5 text-red-600" />
+                                    {totalItems > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg ring-2 ring-white/50">
+                                            {totalItems}
+                                        </span>
+                                    )}
+                                </button>
+
+                                {/* Cart Dropdown */}
+                                {isCartOpen && (
+                                    <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white/95 backdrop-blur-xl backdrop-saturate-200 rounded-2xl shadow-2xl border border-white/40 overflow-hidden z-50">
+                                        <div className="p-4 border-b border-gray-200/50">
+                                            <div className="flex items-center justify-between">
+                                                <h3 className="font-semibold text-gray-800">Shopping Cart</h3>
+                                                <span className="text-sm text-gray-500">{totalItems} items</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="max-h-80 overflow-y-auto">
+                                            {cartItems.length === 0 ? (
+                                                <div className="p-8 text-center">
+                                                    <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                                                    <p className="text-gray-500">Your cart is empty</p>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setIsCartOpen(false);
+                                                            navigate('/#products');
+                                                        }}
+                                                        className="mt-3 text-red-600 hover:text-red-700 text-sm font-medium"
+                                                    >
+                                                        Start Shopping →
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                cartItems.map((item) => (
+                                                    <div key={item.id} className="flex items-center gap-3 p-3 hover:bg-red-50/50 transition-colors duration-200 border-b border-gray-100/50">
+                                                        <img 
+                                                            src={item.image} 
+                                                            alt={item.name}
+                                                            className="w-12 h-12 rounded-lg object-cover"
+                                                        />
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
+                                                            <p className="text-sm text-red-600">${item.price.toFixed(2)}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                                className="p-1 rounded-lg hover:bg-red-100 transition-colors duration-200"
+                                                            >
+                                                                <Minus className="w-3 h-3 text-gray-600" />
+                                                            </button>
+                                                            <span className="w-6 text-center text-sm font-medium text-gray-800">
+                                                                {item.quantity}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                                className="p-1 rounded-lg hover:bg-red-100 transition-colors duration-200"
+                                                            >
+                                                                <Plus className="w-3 h-3 text-gray-600" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => removeItem(item.id)}
+                                                                className="p-1 ml-1 rounded-lg hover:bg-red-100 transition-colors duration-200"
+                                                            >
+                                                                <Trash2 className="w-3 h-3 text-red-500" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+
+                                        {cartItems.length > 0 && (
+                                            <div className="p-4 border-t border-gray-200/50 bg-gray-50/50">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <span className="text-gray-600">Total:</span>
+                                                    <span className="text-lg font-bold text-red-600">${totalPrice.toFixed(2)}</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setIsCartOpen(false);
+                                                            navigate('/cart');
+                                                        }}
+                                                        className="flex-1 bg-red-600 text-white py-2.5 rounded-xl hover:bg-red-700 transition-all duration-300 font-medium shadow-lg shadow-red-600/20"
+                                                    >
+                                                        View Cart
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setIsCartOpen(false);
+                                                            navigate('/checkout');
+                                                        }}
+                                                        className="flex-1 bg-gray-800 text-white py-2.5 rounded-xl hover:bg-gray-900 transition-all duration-300 font-medium shadow-lg shadow-gray-800/20"
+                                                    >
+                                                        Checkout
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Profile Button */}
                             <ProfileButton />
