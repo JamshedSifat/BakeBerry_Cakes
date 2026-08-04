@@ -1,6 +1,5 @@
-
+// src/Components/Products/ProductCard.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
 import { 
     Star, 
     Plus, 
@@ -21,7 +20,6 @@ const ProductCard = ({
     isAdded = false,
     className = ""
 }) => {
-    const navigate = useNavigate();
     const [isHovered, setIsHovered] = useState(false);
     const [isWishlisted, setIsWishlisted] = useState(false);
 
@@ -30,15 +28,10 @@ const ProductCard = ({
         setIsWishlisted(!isWishlisted);
     };
 
-    const handleCardClick = () => {
-        navigate(`/product/${item.id}`);
-    };
-
     return (
         <div 
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            onClick={handleCardClick}
             className={`group relative bg-white/40 backdrop-blur-xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg sm:shadow-xl hover:shadow-2xl sm:hover:shadow-3xl transition-all duration-700 hover:-translate-y-2 sm:hover:-translate-y-3 border border-white/40 cursor-pointer ${className}`}
         >
             {/* Image Container */}
@@ -84,10 +77,7 @@ const ProductCard = ({
 
                 {/* Wishlist Button */}
                 <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleWishlist(e);
-                    }}
+                    onClick={handleWishlist}
                     className="absolute top-2 sm:top-4 right-16 sm:right-20 p-1.5 sm:p-2 bg-black/40 backdrop-blur-md rounded-full border border-white/20 hover:bg-red-600/40 transition-all duration-300"
                 >
                     <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-white/70'}`} />

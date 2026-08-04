@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
+// src/Components/Navbar/Navbar.jsx
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router';
 import { 
     Menu, 
@@ -29,7 +29,19 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const { cartItems, updateQuantity, removeFromCart, getTotalItems, getTotalPrice } = useCart();
+    const [forceUpdate, setForceUpdate] = useState(0);
+    const { 
+        cartItems, 
+        updateQuantity, 
+        removeFromCart, 
+        getTotalItems, 
+        getTotalPrice 
+    } = useCart();
+
+    // Force update when cart changes
+    useEffect(() => {
+        setForceUpdate(prev => prev + 1);
+    }, [cartItems]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -289,10 +301,13 @@ const Navbar = () => {
                                                             src={item.image} 
                                                             alt={item.name}
                                                             className="w-12 h-12 rounded-lg object-cover"
+                                                            onError={(e) => {
+                                                                e.target.src = '/api/placeholder/50/50';
+                                                            }}
                                                         />
                                                         <div className="flex-1 min-w-0">
                                                             <p className="text-sm font-medium text-gray-800 truncate">{item.name}</p>
-                                                            <p className="text-sm text-red-600">${item.price.toFixed(2)}</p>
+                                                            <p className="text-sm text-red-600">${item.price?.toFixed(2) || '0.00'}</p>
                                                         </div>
                                                         <div className="flex items-center gap-1">
                                                             <button

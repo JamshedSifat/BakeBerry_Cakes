@@ -1,39 +1,55 @@
 // src/hooks/useCart.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export const useCart = () => {
-    const [cartItems, setCartItems] = useState(() => {
-        // Load cart from localStorage
-        const savedCart = localStorage.getItem('cart');
-        return savedCart ? JSON.parse(savedCart) : [];
-    });
+    const [cartItems, setCartItems] = useState([]);
+    const [isInitialized, setIsInitialized] = useState(false);
 
+    // Load cart from localStorage on mount
     useEffect(() => {
-        // Save cart to localStorage
-        localStorage.setItem('cart', JSON.stringify(cartItems));
-    }, [cartItems]);
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+            try {
+                setCartItems(JSON.parse(savedCart));
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                setCartItems([]);
+            }
+        }
+        setIsInitialized(true);
+    }, []);
 
-    const addToCart = (product, quantity = 1) => {
+    // Save to localStorage whenever cart changes
+    useEffect(() => {
+        if (isInitialized) {
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+        }
+    }, [cartItems, isInitialized]);
+
+    const addToCart = useCallback((product, quantity = 1) => {
         setCartItems(prevItems => {
-            const existingItem = prevItems.find(item => item.id === product.id);
+            const existingItemIndex = prevItems.findIndex(item => item.id === product.id);
             
-            if (existingItem) {
-                return prevItems.map(item =>
-                    item.id === product.id
-                        ? { ...item, quantity: item.quantity + quantity }
-                        : item
-                );
+            if (existingItemIndex !== -1) {
+                // Update existing item
+                const updatedItems = [...prevItems];
+                updatedItems[existingItemIndex] = {
+                    ...updatedItems[existingItemIndex],
+                    quantity: updatedItems[existingItemIndex].quantity + quantity
+                };
+                return updatedItems;
             } else {
+                // Add new item
                 return [...prevItems, { ...product, quantity }];
             }
         });
-    };
+    }, []);
 
-    const removeFromCart = (productId) => {
+    const removeFromCart = useCallback((productId) => {
         setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
-    };
+    }, []);
 
-    const updateQuantity = (productId, newQuantity) => {
+    const updateQuantity = useCallback((productId, newQuantity) => {
         if (newQuantity <= 0) {
             removeFromCart(productId);
             return;
@@ -45,19 +61,19 @@ export const useCart = () => {
                     : item
             )
         );
-    };
+    }, [removeFromCart]);
 
-    const clearCart = () => {
+    const clearCart = useCallback(() => {
         setCartItems([]);
-    };
+    }, []);
 
-    const getTotalItems = () => {
+    const getTotalItems = useCallback(() => {
         return cartItems.reduce((total, item) => total + item.quantity, 0);
-    };
+    }, [cartItems]);
 
-    const getTotalPrice = () => {
+    const getTotalPrice = useCallback(() => {
         return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    };
+    }, [cartItems]);
 
     return {
         cartItems,
@@ -66,6 +82,7 @@ export const useCart = () => {
         updateQuantity,
         clearCart,
         getTotalItems,
-        getTotalPrice
+        getTotalPrice,
+        isInitialized
     };
 };

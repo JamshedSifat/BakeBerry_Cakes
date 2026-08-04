@@ -70,15 +70,15 @@ const ProfileButton = ({ className = "" }) => {
                                 <User className="w-4 h-4" />
                                 My Profile
                             </NavLink>
-                            <NavLink 
+                            {/* <NavLink 
                                 to="/orders" 
                                 className="flex items-center gap-3 px-3 py-2 hover:bg-red-600/10 rounded-xl transition-colors text-gray-700 hover:text-red-600"
                                 onClick={() => setIsOpen(false)}
                             >
                                 <Package className="w-4 h-4" />
                                 My Orders
-                            </NavLink>
-                            <NavLink 
+                            </NavLink> */}
+                            {/* <NavLink 
                                 to="/wishlist" 
                                 className="flex items-center gap-3 px-3 py-2 hover:bg-red-600/10 rounded-xl transition-colors text-gray-700 hover:text-red-600"
                                 onClick={() => setIsOpen(false)}
@@ -93,9 +93,9 @@ const ProfileButton = ({ className = "" }) => {
                             >
                                 <Settings className="w-4 h-4" />
                                 Settings
-                            </NavLink>
+                            </NavLink> */}
                         </div>
-                        <div className="border-t border-gray-200/50 pt-2">
+                        {/* <div className="border-t border-gray-200/50 pt-2">
                             <button 
                                 onClick={handleLogout}
                                 className="flex items-center gap-3 px-3 py-2 w-full hover:bg-red-600/10 rounded-xl transition-colors text-red-600"
@@ -103,7 +103,7 @@ const ProfileButton = ({ className = "" }) => {
                                 <LogOut className="w-4 h-4" />
                                 Logout
                             </button>
-                        </div>
+                        </div> */}
                     </div>
                 </>
             )}

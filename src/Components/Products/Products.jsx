@@ -1,14 +1,16 @@
-
+// src/Components/Products/Products.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { 
     ChevronLeft, 
     ChevronRight,
     Grid,
-    List
+    List,
+    X
 } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
 import ProductCard from './ProductCard';
+import ProductDetailsModal from './ProductDetailsModal';
 
 const Products = ({ 
     items = [], 
@@ -31,6 +33,8 @@ const Products = ({
     const [totalPages, setTotalPages] = useState(1);
     const [addedItemId, setAddedItemId] = useState(null);
     const [viewMode, setViewMode] = useState('grid');
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Filter items when category changes
     useEffect(() => {
@@ -50,7 +54,29 @@ const Products = ({
         setTotalPages(Math.ceil(filteredItems.length / itemsPerPage));
     }, [filteredItems, currentPage, itemsPerPage]);
 
-    // Navigation functions
+    // Close modal on ESC key
+    useEffect(() => {
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, []);
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isModalOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isModalOpen]);
+
     const goToPage = (page) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
@@ -113,7 +139,13 @@ const Products = ({
     };
 
     const handleQuickView = (item) => {
-        navigate(`/product/${item.id}`);
+        setSelectedProduct(item);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedProduct(null);
     };
 
     return (
@@ -270,6 +302,14 @@ const Products = ({
                     </div>
                 )}
             </div>
+
+            {/* Product Details Modal */}
+            <ProductDetailsModal
+                product={selectedProduct}
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onAddToCart={handleAddToCart}
+            />
         </div>
     );
 };
