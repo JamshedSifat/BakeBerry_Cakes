@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router';
 import { 
@@ -20,33 +21,7 @@ import {
 import MobileSearchToggle from '../Shared/MobileSearchToggle';
 import Search from '../Shared/Search';
 import ProfileButton from '../Shared/profile/ProfileButton';
-
-// Mock cart data - replace with your actual cart state management
-const useCart = () => {
-    const [cartItems, setCartItems] = useState([
-        { id: 1, name: 'Chocolate Cake', price: 25.99, quantity: 2, image: '/api/placeholder/50/50' },
-        { id: 2, name: 'Strawberry Tart', price: 18.50, quantity: 1, image: '/api/placeholder/50/50' },
-    ]);
-
-    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    const updateQuantity = (id, newQuantity) => {
-        if (newQuantity === 0) {
-            setCartItems(cartItems.filter(item => item.id !== id));
-        } else {
-            setCartItems(cartItems.map(item => 
-                item.id === id ? { ...item, quantity: newQuantity } : item
-            ));
-        }
-    };
-
-    const removeItem = (id) => {
-        setCartItems(cartItems.filter(item => item.id !== id));
-    };
-
-    return { cartItems, totalItems, totalPrice, updateQuantity, removeItem };
-};
+import { useCart } from '../../hooks/useCart';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -54,7 +29,7 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const { cartItems, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
+    const { cartItems, updateQuantity, removeFromCart, getTotalItems, getTotalPrice } = useCart();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -64,7 +39,6 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Close cart when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (isCartOpen && !event.target.closest('.cart-container')) {
@@ -116,6 +90,9 @@ const Navbar = () => {
         navigate('/login');
     };
 
+    const totalItems = getTotalItems();
+    const totalPrice = getTotalPrice();
+
     const navLinks = [
         { to: '/', label: 'Home', icon: Home, section: 'home' },
         { to: '/#products', label: 'Products', icon: Package, section: 'products' },
@@ -152,7 +129,6 @@ const Navbar = () => {
                         
                         {/* Left side - Toggle + Brand */}
                         <div className="flex items-center gap-2">
-                            {/* Mobile Menu Toggle */}
                             <button
                                 onClick={toggleMenu}
                                 className="lg:hidden btn btn-ghost btn-circle hover:bg-red-600/20 hover:scale-105 transition-all duration-300 bg-white/20 backdrop-blur-md border border-white/30"
@@ -164,7 +140,6 @@ const Navbar = () => {
                                 )}
                             </button>
 
-                            {/* Desktop Dropdown */}
                             <div className="hidden lg:block dropdown">
                                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle hover:bg-red-600/20 hover:scale-105 transition-all duration-300 bg-white/20 backdrop-blur-md border border-white/30">
                                     <Menu className="h-5 w-5 text-red-600" />
@@ -215,14 +190,13 @@ const Navbar = () => {
                                 </ul>
                             </div>
                             
-                            {/* Brand Name */}
                             <NavLink to="/" className="flex items-center hover:scale-105 transition-transform duration-300">
                                 <span className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-800'>Bake</span>
                                 <span className="text-xl sm:text-2xl md:text-3xl font-bold text-red-600 hover:text-red-700 transition-all duration-300">Berry</span>
                             </NavLink>
                         </div>
                         
-                        {/* Center - Navigation Links (Desktop) */}
+                        {/* Center - Navigation Links */}
                         <div className="hidden lg:flex items-center gap-1">
                             {navLinks.map((link) => {
                                 const Icon = link.icon;
@@ -263,15 +237,13 @@ const Navbar = () => {
                         
                         {/* Right side - Search, Cart, Profile */}
                         <div className="flex items-center gap-1 sm:gap-2">
-                            {/* Desktop Search */}
                             <div className="hidden md:block">
                                 <Search variant="compact" />
                             </div>
 
-                            {/* Mobile Search Toggle */}
                             <MobileSearchToggle />
 
-                            {/* Enhanced Cart Button with Dropdown */}
+                            {/* Enhanced Cart Button */}
                             <div className="cart-container relative">
                                 <button
                                     onClick={toggleCart}
@@ -279,7 +251,7 @@ const Navbar = () => {
                                 >
                                     <ShoppingCart className="h-5 w-5 text-red-600" />
                                     {totalItems > 0 && (
-                                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg ring-2 ring-white/50">
+                                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg ring-2 ring-white/50 animate-pulse">
                                             {totalItems}
                                         </span>
                                     )}
@@ -339,7 +311,7 @@ const Navbar = () => {
                                                                 <Plus className="w-3 h-3 text-gray-600" />
                                                             </button>
                                                             <button
-                                                                onClick={() => removeItem(item.id)}
+                                                                onClick={() => removeFromCart(item.id)}
                                                                 className="p-1 ml-1 rounded-lg hover:bg-red-100 transition-colors duration-200"
                                                             >
                                                                 <Trash2 className="w-3 h-3 text-red-500" />
@@ -382,7 +354,6 @@ const Navbar = () => {
                                 )}
                             </div>
 
-                            {/* Profile Button */}
                             <ProfileButton />
                         </div>
                     </div>

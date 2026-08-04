@@ -5,7 +5,9 @@ import Banner from '../Banner/Banner';
 import SpecialOffers from '../SpecialOffers/SpecialOffers';
 import About from '../About/About';
 import Contact from '../Contact/Contact';
-// import Menu from '../Menu/Menu';
+import Menu from '../Menu/menu';
+
+
 
 
 const Home = () => {
@@ -15,9 +17,9 @@ const Home = () => {
                 <Banner />
             </section>
             
-            {/* <section id="products">
+            <section id="products">
                 <Menu />
-            </section> */}
+            </section>
             
             <section id="offers">
                 <SpecialOffers />
